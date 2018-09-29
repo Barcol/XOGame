@@ -1,0 +1,190 @@
+import random
+import re
+import socket
+from typing import Union, Tuple, List
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+class Board:
+    def __init__(self, width: int, height: int):
+        self.__board = [["-" for _ in range(width)] for _ in range(height)]
+
+    def draw_board(self):
+        for board_row in self.__board:
+            board_row_str = " ".join(board_row)
+            print(board_row_str)
+
+    def check_win(self) -> Union[str, bool]:
+        checked_wins = [self.__check_all_win_vectors(1, 0),
+                        self.__check_all_win_vectors(0, 1),
+                        self.__check_all_win_vectors(1, 1),
+                        self.__check_all_win_vectors(1, -1)]
+
+        for checked_win in checked_wins:
+            if checked_win is not False:
+                return checked_win
+
+    def is_board_full(self) -> bool:
+        for single_row in self.__board:
+            for symbol in single_row:
+                if symbol == "-":
+                    return False
+        return True
+
+    def put_mark_if_possible(self, x: int, y: int, player_mark: str) -> bool:
+        if self.__are_coordinates_in_board_range(x, y) and self.__board[y][x] == "-":
+            self.__board[y][x] = player_mark
+            return True
+        return False
+
+    def __are_coordinates_in_board_range(self, x: int, y: int) -> bool:
+        board_width = len(self.__board[0])
+        board_height = len(self.__board)
+        return (0 <= x < board_width) and (0 <= y < board_height)
+
+    def __check_all_win_vectors(self, delta_x: int, delta_y: int) -> Union[str, bool]:
+        for y, board_row in enumerate(self.__board):
+            for x in range(len(board_row)):
+                single_win_vector = self.__check_single_win_vector(x, y, delta_x, delta_y)
+
+                if single_win_vector:
+                    return single_win_vector
+        return False
+
+    def __check_single_win_vector(self, start_x: int, start_y: int, delta_x: int, delta_y: int) -> Union[str, bool]:
+        symbol_string = ""
+
+        while self.__are_coordinates_in_board_range(start_x, start_y):
+            symbol_string += self.__board[start_y][start_x]
+            start_x += delta_x
+            start_y += delta_y
+
+        found_result = re.search(r"([^\-])\1\1", symbol_string)
+
+        if found_result:
+            return found_result.groups()[0]
+        else:
+            return False
+
+
+class Player:
+    def __init__(self, mark: str):
+        if len(mark) != 1:
+            raise ValueError("mark must be single character string")
+
+        self.__mark = mark
+        self.__next_player = None
+
+    @property  # to jest dekorator ktory pozwala wywolac ta metode jako "getter", czyli bez nawiasow, np. my_player.next_player
+    def next_player(self) -> "Player":  # tu musze type hinta dac w ciapkach, poniewz w przeciwnym wypadku, jesli type hintem jest ta klasa, do ktorej metody type hint robie, to python sobie z tym nie radzi
+        return self.__next_player
+
+    @next_player.setter  # to jest dekorator ktory pozwala wywolac ta metode jako setter, czyli tak: my_player.next_player = other_player
+    def next_player(self, next_player: "Player"):  # tak samo jak wyzej - type hint w ciapkach musi tu byc
+        if self.__next_player is None:
+            self.__next_player = next_player
+
+    def do_move(self, board: Board) -> bool:
+        x = int(input("podaj x"))
+        y = int(input("podaj y"))
+
+        return board.put_mark_if_possible(x, y, self.__mark)
+
+
+class XOGame:
+    def __init__(self, player_list: List[Player], board: Board):
+        for player, next_player in zip(player_list, player_list[1:] + [player_list[0]]):
+            player.next_player = next_player
+
+        self.__actual_player = player_list[0]
+        self.__board = board
+
+    def do_move(self):
+        if not self.__actual_player.do_move(self.__board):
+            print("zajete! tracisz ture gamoniu")
+
+        self.__actual_player = self.__actual_player.next_player
+
+    def draw_board(self):
+        self.__board.draw_board()
+
+    def check_win(self) -> Union[str, bool]:
+        return self.__board.check_win()
+
+    def is_board_full(self) -> bool:
+        return self.__board.is_board_full()
+
+    # def make_round(self):
+    #     for player in self.players:
+    #         if player == "Y":
+    #             self.player_react_online(player)
+    #         else:
+    #             self.player_react_local(player)
+    #
+
+    #
+    # def player_react_local(self, player):
+    #     try:
+    #         x = int(input("Ruch {}. Podaj kolumne!".format(player)))
+    #         y = int(input("Ruch {}. Podaj wiersz!".format(player)))
+    #     except:
+    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
+    #         self.do_move(x - 1, y - 1, player)
+    #
+    # def player_react_online(self, player):
+    #     self.draw_map()
+    #     try:
+    #         conn.sendall("Ruch {}. Podaj kolumne!".format(player))
+    #         x = int(conn.recv(1024))
+    #         conn.sendall("Ruch {}. Podaj wiersz!".format(player))
+    #         y = int(conn.recv(1024))
+    #     except:
+    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
+    #         self.do_move(x - 1, y - 1, player)
+
+
+if __name__ == '__main__':
+    width = int(input("podaj szerokosc planszy(tak przynajmniej z 4): "))
+    height = int(input("podaj wysokosc planszy(tak przynajmniej ze 4): "))
+
+
+    if (width < 5) or (height < 4):
+        width = random.randint(4, 8)
+        height = random.randint(4, 8)
+        print("nie kumasz to ja ci wybiore. szerokość to {}, a wysokosc {}".format(width, height))
+
+    board = Board(width, height)
+    player_list = [Player("X"), Player("O")]
+    game = XOGame(player_list, board)
+
+    while not game.is_board_full():
+        game.draw_board()
+        game.do_move()
+        winning_symbol = game.check_win()
+
+        if winning_symbol:
+            print("wygraly {}".format(winning_symbol))
+            break
+
+    print("gra skonczona")
+
+    # result = "still_playing"
+    #
+    # server_address = ('localhost', 10000)
+    # print('starting up on {} port {}'.format(*server_address))
+    # sock.bind(server_address)
+    # sock.listen(1)
+    # conn, addr = sock.accept()
+    #
+    # try:
+    #     while result == "still_playing":
+    #         game.make_round()
+    #         result = game.check_win()
+    #         result = game.is_map_full()
+    # finally:
+    #     conn.close()
+    #
+    # if result == "remis":
+    #     print("No niestety, remis.")
+    # print("Koniec gry!")
