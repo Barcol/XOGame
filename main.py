@@ -3,7 +3,10 @@ import re
 import socket
 from typing import Union, Tuple, List
 
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
 
 
 class Board:
@@ -68,6 +71,11 @@ class Board:
             return False
 
 
+
+
+
+
+
 class Player:
     def __init__(self, mark: str):
         if len(mark) != 1:
@@ -80,8 +88,8 @@ class Player:
     def next_player(self) -> "Player":
         return self.__next_player
 
-    @next_player.setter  # to jest dekorator ktory pozwala wywolac ta metode jako setter, czyli tak: my_player.next_player = other_player
-    def next_player(self, next_player: "Player"):  # tak samo jak wyzej - type hint w ciapkach musi tu byc
+    @next_player.setter
+    def next_player(self, next_player: "Player"):
         if self.__next_player is None:
             self.__next_player = next_player
 
@@ -90,6 +98,14 @@ class Player:
         y = int(input("podaj y"))
 
         return board.put_mark_if_possible(x, y, self.__mark)
+
+
+
+
+
+
+
+
 
 
 class XOGame:
@@ -114,6 +130,11 @@ class XOGame:
 
     def is_board_full(self) -> bool:
         return self.__board.is_board_full()
+
+
+
+
+
 
 
 
