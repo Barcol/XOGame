@@ -5,22 +5,20 @@ from typing import Union
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
-class XOGame:  # usunalem nowa linie przed initem
-    __players = ["x", "o"] # zmienilem players na prywatna statyczna zmienną (bo kazda gra bedzie miala tych graczy)
+class XOGame:
+    __players = ["x", "o"]
 
-    def __init__(self, width: int, height: int): # dodalem type hinty do argumentow
+    def __init__(self, width: int, height: int):
         self.__next_player = self.__players[0]
         print(self.__next_player)
-        # usunalem self.width i self.height bo nie sa potrzebne (w innych metodach bedziemy iterowac po self.__board)
-        self.__board = [["-" for _ in range(width)] for _ in range(height)]  # zmienilem zmienna obiektu self.position na self.__board
-        # usunalem metode self.__prepare_map (bo zostala zastapiona powyzsza linijka)
+        self.__board = [["-" for _ in range(width)] for _ in range(height)]
 
     def draw_map(self):
         for board_row in self.__board:
-            board_row_str = " ".join(board_row)  # to laczy elementy listy za pomoca stringa od ktorego sie ta metode wywola (tutaj " ")
-            print(board_row_str)  # uzywaj printa zamiast sys.stdout.write
+            board_row_str = " ".join(board_row)
+            print(board_row_str)
 
-    def check_win(self) -> Union[str, bool]: # przerobilem ta metode zeby uzywala prywatnej metody ktora sprawdza w inny sposob
+    def check_win(self) -> Union[str, bool]:
         checked_wins = [self.__check_win_with_deltas(1, 0),
                         self.__check_win_with_deltas(0, 1),
                         self.__check_win_with_deltas(1, 1),
@@ -32,7 +30,7 @@ class XOGame:  # usunalem nowa linie przed initem
 
         return False
 
-    def do_move(self, x: int, y: int):  # dodalem type hinty do argumentow i usunalem argument "player" (bo teraz sama klasa wie kto bedzie mial nastepny ruch)
+    def do_move(self, x: int, y: int):
         if self.__board[y][x] == "-":
             self.__board[y][x] = self.__next_player
 
@@ -41,41 +39,12 @@ class XOGame:  # usunalem nowa linie przed initem
         else:
             print("zajete! tracisz ture gamoniu")
 
-    def is_board_full(self) -> bool: # dodalem type hint ze zwraca cos typu bool
-        # zmienilem ta metode zeby zwracala true albo false (bo stringami sie trudno operuje pozniej)
+    def is_board_full(self) -> bool:
         for single_row in self.__board:
             for symbol in single_row:
                 if symbol == "-":
                     return False
         return True
-
-    # def make_round(self):
-    #     for player in self.players:
-    #         if player == "Y":
-    #             self.player_react_online(player)
-    #         else:
-    #             self.player_react_local(player)
-    #
-
-    #
-    # def player_react_local(self, player):
-    #     try:
-    #         x = int(input("Ruch {}. Podaj kolumne!".format(player)))
-    #         y = int(input("Ruch {}. Podaj wiersz!".format(player)))
-    #     except:
-    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
-    #         self.do_move(x - 1, y - 1, player)
-    #
-    # def player_react_online(self, player):
-    #     self.draw_map()
-    #     try:
-    #         conn.sendall("Ruch {}. Podaj kolumne!".format(player))
-    #         x = int(conn.recv(1024))
-    #         conn.sendall("Ruch {}. Podaj wiersz!".format(player))
-    #         y = int(conn.recv(1024))
-    #     except:
-    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
-    #         self.do_move(x - 1, y - 1, player)
 
     def __check_win_with_deltas(self, delta_x: int, delta_y: int) -> Union[str, bool]:  # union znaczy ze moze to byc string albo bool
         for y, board_row in enumerate(self.__board):

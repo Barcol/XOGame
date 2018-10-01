@@ -76,8 +76,8 @@ class Player:
         self.__mark = mark
         self.__next_player = None
 
-    @property  # to jest dekorator ktory pozwala wywolac ta metode jako "getter", czyli bez nawiasow, np. my_player.next_player
-    def next_player(self) -> "Player":  # tu musze type hinta dac w ciapkach, poniewz w przeciwnym wypadku, jesli type hintem jest ta klasa, do ktorej metody type hint robie, to python sobie z tym nie radzi
+    @property
+    def next_player(self) -> "Player":
         return self.__next_player
 
     @next_player.setter  # to jest dekorator ktory pozwala wywolac ta metode jako setter, czyli tak: my_player.next_player = other_player
@@ -115,33 +115,6 @@ class XOGame:
     def is_board_full(self) -> bool:
         return self.__board.is_board_full()
 
-    # def make_round(self):
-    #     for player in self.players:
-    #         if player == "Y":
-    #             self.player_react_online(player)
-    #         else:
-    #             self.player_react_local(player)
-    #
-
-    #
-    # def player_react_local(self, player):
-    #     try:
-    #         x = int(input("Ruch {}. Podaj kolumne!".format(player)))
-    #         y = int(input("Ruch {}. Podaj wiersz!".format(player)))
-    #     except:
-    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
-    #         self.do_move(x - 1, y - 1, player)
-    #
-    # def player_react_online(self, player):
-    #     self.draw_map()
-    #     try:
-    #         conn.sendall("Ruch {}. Podaj kolumne!".format(player))
-    #         x = int(conn.recv(1024))
-    #         conn.sendall("Ruch {}. Podaj wiersz!".format(player))
-    #         y = int(conn.recv(1024))
-    #     except:
-    #         print("nie wiem co chciales osiagnac, ale tracisz ture")
-    #         self.do_move(x - 1, y - 1, player)
 
 
 if __name__ == '__main__':
@@ -168,23 +141,3 @@ if __name__ == '__main__':
             break
 
     print("gra skonczona")
-
-    # result = "still_playing"
-    #
-    # server_address = ('localhost', 10000)
-    # print('starting up on {} port {}'.format(*server_address))
-    # sock.bind(server_address)
-    # sock.listen(1)
-    # conn, addr = sock.accept()
-    #
-    # try:
-    #     while result == "still_playing":
-    #         game.make_round()
-    #         result = game.check_win()
-    #         result = game.is_map_full()
-    # finally:
-    #     conn.close()
-    #
-    # if result == "remis":
-    #     print("No niestety, remis.")
-    # print("Koniec gry!")
