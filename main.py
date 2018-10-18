@@ -99,7 +99,7 @@ class Board():  # ta klasa nie zmienila sie za wiele
         return True
 
     def __are_coordinates_in_board_range(self, x: int, y: int) -> bool:
-        if (x <= len(self.__width)) and (y <= len(self.__height)):
+        if (x <= self.__width) and (y <= self.__height):
             return True
         return False
 
@@ -125,7 +125,10 @@ class XOGame():
             player.connect_to_player()
             player.draw_map(self.__board.show_board())
             x, y = player.do_move()
-            self.__board.put_mark_if_possible(player.get_mark, int(x.decode()), int(y.decode()))
+            print (x)
+            print (y)
+            try :self.__board.put_mark_if_possible(player.get_mark, int(x, base =2), int(y, base =2))
+            except: pass
             player.end_connection()
             return board.check_win()
 
