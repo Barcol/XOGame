@@ -1,7 +1,7 @@
 import socket
 
 host = str(input("podaj adres IP serwera"))
-port = 12345
+port = 1234
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

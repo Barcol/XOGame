@@ -23,7 +23,7 @@ class Player():  # zadania tej klasy zostaly mocno obciete. W zasadzie to pozost
 class NetPlay():
     def __init__(self, player: Player):  # konstruktor jedynie przypisuje adres klienta do obiektu ktory odpowiada za laczenie
         self.__adress = player.get_adress  # na kazdego gracza przypada jeden obiekt tej klasy, ktory potrafi sie laczyc TYLKO z nim
-        self.__port = 12345  # port jest jeden dla kazdego
+        self.__port = 1234  # port jest jeden dla kazdego
 
     def connect_to_player(self):  # natomiast za laczenie odpowiada ta funckja (wywolujemy przed kazdym rchem gracza!)
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -133,6 +133,7 @@ class XOGame():
             return board.check_win()
 
     def tell_who_won(self, mark: str):
+        player: NetPlay
         for player in self.__connection_table:
             player.connect_to_player()
             player.tell_who_won(mark)
