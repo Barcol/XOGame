@@ -3,8 +3,8 @@ import socket
 from typing import Union, List
 
 
-class Player:  # zadania tej klasy zostaly mocno obciete. W zasadzie to pozostaly tylko 3.
-    def __init__(self, mark: str):  # po pierwsze sprawdza czy ma jeden znak
+class Player:
+    def __init__(self, mark: str):
         if len(mark) != 1:
             # raise PlayerMarkError("Symbol gracza musi mieć jeden znak!")
             pass
@@ -21,8 +21,8 @@ class Player:  # zadania tej klasy zostaly mocno obciete. W zasadzie to pozostal
 
 
 class NetPlay:
-    def __init__(self, player: Player):  # konstruktor jedynie przypisuje adres klienta
-        self.__adress = player.get_adress  # na kazdego gracza przypada jeden obiekt tej klasy
+    def __init__(self, netplayer: Player):  # konstruktor jedynie przypisuje adres klienta
+        self.__adress = netplayer.get_adress  # na kazdego gracza przypada jeden obiekt tej klasy
         self.__port = 1234  # port jest jeden dla kazdego
 
     def connect_to_player(self):  # natomiast za laczenie odpowiada ta funckja (wywolujemy przed kazdym rchem gracza!)
@@ -69,9 +69,9 @@ class NetPlay:
 
 
 class Board:  # ta klasa nie zmienila sie za wiele
-    def __init__(self, height: int, width: int):
-        self.__height = height
-        self.__width = width
+    def __init__(self, board_height: int, board_width: int):
+        self.__height = board_height
+        self.__width = board_width
         self.__board = [["-" for _ in range(self.__width)] for _ in range(self.__height)]
 
     def check_win(self) -> Union[str, bool]:
@@ -126,26 +126,26 @@ class Board:  # ta klasa nie zmienila sie za wiele
 
 
 class XOGame:
-    def __init__(self, board: Board, connection_table: List[NetPlay]):
-        self.__board = board
-        self.__connection_table = connection_table
+    def __init__(self, play_board: Board, connect_table: List[NetPlay]):
+        self.__board = play_board
+        self.__connection_table = connect_table
 
     def play_round(self) -> Union[str, bool]:  # funkcja robi standardowy zestaw czynnosci potrzebny do rozgerania tury
-        for player in self.__connection_table:
-            player.connect_to_player()
-            player.draw_map(self.__board.show_board())
-            x, y = player.do_move()
+        for actual_player in self.__connection_table:
+            actual_player.connect_to_player()
+            actual_player.draw_map(self.__board.show_board())
+            x, y = actual_player.do_move()
             print(x)
             print(y)
             self.__board.put_mark_if_possible(player.get_mark, int(x, base=2), int(y, base=2))
-            player.end_connection()
+            actual_player.end_connection()
             return board.check_win()
 
     def tell_who_won(self, mark: str):
-        for player in self.__connection_table:
-            player.connect_to_player()
-            player.tell_who_won(mark)
-            player.end_connection()
+        for actual_player in self.__connection_table:
+            actual_player.connect_to_player()
+            actual_player.tell_who_won(mark)
+            actual_player.end_connection()
 
     def is_board_full(self) -> bool:
         return board.is_board_full()
