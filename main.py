@@ -30,8 +30,7 @@ class NetPlay:
         self.__sock.bind((self.__adress, self.__port))
         self.__sock.listen(1)
         self.__conn, self.__addr = self.__sock.accept()
-        print("polaczylem sie! typek to".format(self.__addr))
-        print("test")
+        print("polaczylem sie! typek to{}".format(self.__addr))
 
     def draw_map(self, ready_board):
         self.__conn.sendall(self.coder(len(ready_board)))  # wysylamy klientowi wysoksc tabeli
@@ -40,10 +39,10 @@ class NetPlay:
 
     def do_move(self):  # po wyswietleniu klientowi obecnego stanu rzeczy, pytamy go o wspolrzedne
         self.__conn.sendall(self.coder("Podaj X"))
-        x = self.__conn.recv(1024)
+        x = self.coder(self.__conn.recv(1024))
         self.__conn.sendall(self.coder("Podaj Y"))
-        y = self.__conn.recv(1024)
-        return x, y  # funkcja zwraca co zdecydowal gracz. rola obiektu zostala zakonczona
+        y = self.coder(self.__conn.recv(1024))
+        return int(x), int(y)
 
     def end_connection(self):  # konczy polaczenie
         self.__conn.close()
@@ -51,16 +50,20 @@ class NetPlay:
     def tell_who_won(self, mark: str):
         self.__conn.sendall(self.coder("GRA SKONCZONA. {} WYGRAL!".format(mark)))
 
-    def coder(self, data: Union[int, str, bytes]):
+    @staticmethod
+    def coder(data: Union[int, str, bytes]):
         if not isinstance(data, bytes):
-            return bytes(data, "utf-8")
+            print(bytes(str(data), "utf-8"))
+            return bytes(str(data), "utf-8")
         if bytes == "":
             return 1
         if isinstance(data, bytes):
             data = str(data, "utf-8")
             if data.isdecimal():
+                print(int(data))
                 return int(data)
             else:
+                print(data)
                 return data
 
     @property
@@ -121,6 +124,7 @@ class Board:  # ta klasa nie zmienila sie za wiele
             return True
         return False
 
+
     def show_board(self):
         return self.__board
 
@@ -137,7 +141,7 @@ class XOGame:
             x, y = actual_player.do_move()
             print(x)
             print(y)
-            self.__board.put_mark_if_possible(player.get_mark, int(x, base=2), int(y, base=2))
+            self.__board.put_mark_if_possible(player.get_mark, x, y)
             actual_player.end_connection()
             return board.check_win()
 
