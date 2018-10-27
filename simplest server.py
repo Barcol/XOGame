@@ -11,7 +11,7 @@ s.bind((adress, port))
 s.listen(1)
 conn, addr = s.accept()
 
-print("jest! mamy gnoja! a imie jego: ".format(addr))
+print("jest! mamy gnoja! a imie jego: {}".format(addr))
 
 while True:
     data = conn.recv(1024)

@@ -9,7 +9,7 @@ class Player:
             # raise PlayerMarkError("Symbol gracza musi mieć jeden znak!")
             pass
         self.__mark = mark
-        self.__adress = str(input("Podaj adres IP gracza ".format(self.__mark)))
+        self.__adress = "127.0.0.1"  # str(input("Podaj adres IP gracza ".format(self.__mark)))
 
     @property
     def get_adress(self):  # po drugie chwali sie swoim adresem
@@ -24,6 +24,7 @@ class NetPlay:
     def __init__(self, netplayer: Player):  # konstruktor jedynie przypisuje adres klienta
         self.__adress = netplayer.get_adress  # na kazdego gracza przypada jeden obiekt tej klasy
         self.__port = 1234  # port jest jeden dla kazdego
+        self.__netplayer = netplayer
 
     def connect_to_player(self):  # natomiast za laczenie odpowiada ta funckja (wywolujemy przed kazdym rchem gracza!)
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -68,7 +69,7 @@ class NetPlay:
 
     @property
     def get_mark(self):
-        return player.get_mark
+        return self.__netplayer.get_mark
 
 
 class Board:  # ta klasa nie zmienila sie za wiele

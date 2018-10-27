@@ -10,17 +10,14 @@ flag = 0
 
 def coder(data: Union[int, str, bytes]):
     if not isinstance(data, bytes):
-        print(bytes(str(data), "utf-8"))
         return bytes(str(data), "utf-8")
     if bytes == "":
         return 1
     if isinstance(data, bytes):
         data = str(data, "utf-8")
         if data.isdecimal():
-            print(int(data))
             return int(data)
         else:
-            print(data)
             return data
 
 
@@ -40,7 +37,7 @@ while True:
     if isinstance(received, int):
         for table_row_number in range(received):
             table_row = sock.recv(1024)
-            print(table_row)
+            print(coder(table_row))
     if str(received) == "GRA":  # ma sie zaczynac od tego, a nie byc tym! wyrazenie regularne needed
         print(received)
         break
