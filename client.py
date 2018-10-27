@@ -1,3 +1,4 @@
+import pickle
 import socket
 from enum import Enum
 from typing import Union
@@ -31,12 +32,29 @@ class MessageType(Enum):
 
 sock.connect((host, port))
 
+
+def __send_move_request(self, request_type: MessageType, response_type: MessageType) -> int:
+    response = (None, None)
+
+    while response[0] != response_type:
+        sock.send(pickle.dumps((request_type, None)))
+        response = pickle.loads(self.__connection.recv(1024))
+
+
+
 try:
     while 1:
-        a = sock.recv(1024)
-        if a:
-            print(a.decode())
-
+        x = sock.recv(1024)
+        if x.decode():
+            a = pickle.loads(x)
+            if a[0] == MessageType.X_REQUEST:
+                move = int(input("podaj X"))
+                sock.send(pickle.dumps((MessageType.X_RESPONSE, move)))
+            elif a[0] == MessageType.Y_REQUEST:
+                move = int(input("podaj Y"))
+                sock.send(pickle.dumps((MessageType.Y_RESPONSE, move)))
+            elif a[0] == MessageType.BOARD_SEND:
+                print(a[1])
 except KeyboardInterrupt:
     sock.close()
 # while True:

@@ -206,7 +206,7 @@ class XOGame:
 
     def __send_board_to_all(self, string_board: str):
         for connection in self.__player_list:
-            connection.send_board(string_board)
+            connection.send_board(pickle.dumps((MessageType.BOARD_SEND, string_board)))
 
 
 if __name__ == '__main__':  # gra nie ruszy jeżeli nie jest mainem
