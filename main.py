@@ -58,7 +58,7 @@ class NetPlayer:
         self.__connection.close()
 
     def tell_who_won(self, mark: str):
-        self.__connection.sendall(self.coder("GRA SKONCZONA. {} WYGRAL!".format(mark)))
+        self.__connection.sendall("GRA SKONCZONA. {} WYGRAL!".format(mark))
 
     def __send_move_request(self, request_type: MessageType, response_type: MessageType) -> int:
         response = (None, None)
@@ -69,21 +69,6 @@ class NetPlayer:
 
         return response[1]
 
-    @staticmethod
-    def coder(data: Union[int, str, bytes]):
-        if not isinstance(data, bytes):
-            print(bytes(str(data), "utf-8"))
-            return bytes(str(data), "utf-8")
-        if bytes == "":
-            return 1
-        if isinstance(data, bytes):
-            data = str(data, "utf-8")
-            if data.isdecimal():
-                print(int(data))
-                return int(data)
-            else:
-                print(data)
-                return data
 
     @property
     def mark(self):
@@ -202,7 +187,6 @@ class XOGame:
 
     def tell_who_won(self, mark: str):
         for actual_player in self.__player_list:
-            actual_player.connect_to_player()
             actual_player.tell_who_won(mark)
             actual_player.end_connection()
 
@@ -220,7 +204,7 @@ if __name__ == '__main__':  # gra nie ruszy jeżeli nie jest mainem
     board = Board(width, height)
     # player_list = [Player("X"), Player("O")]  # tutaj można dopisać nowych graczy
     server = Server()
-    player_list = server.wait_for_players(1)
+    player_list = server.wait_for_players(2)
     # connection_table = [NetPlay(player) for player in player_list]
     #try:
     game = XOGame(board, player_list)
