@@ -3,7 +3,7 @@ import re
 import socket
 from enum import Enum
 from typing import Union, List, Any, Tuple
-
+possible_players = ["Y", "Z", "O", "X"]
 
 class MessageType(Enum):
     BOARD_SEND = 0
@@ -31,14 +31,15 @@ class MessageType(Enum):
 
 
 class NetPlayer:
-    def __init__(self, connection: socket):  # konstruktor jedynie przypisuje adres klienta
-        # self.__port = 1234  # port jest jeden dla kazdego
+    def __init__(self, connection: socket):
+        # self.__port = 1234
         # self.__net_player = net_player
         # self.__sock = None
         # self.__connection = None
+        self.__mark = possible_players.pop(-1)
         self.__connection = connection
 
-    # def connect_to_player(self):  # natomiast za laczenie odpowiada ta funckja (wywolujemy przed kazdym rchem gracza!)
+    # def connect_to_player(self):
     #     self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #     self.__sock.bind((self.__net_player.address, self.__port))
     #     self.__sock.listen(1)
@@ -46,10 +47,9 @@ class NetPlayer:
     #     print("polaczylem sie! typek to{}".format(address))
 
     def send_board(self, string_board: str):
-        self.__connection.send(string_board.encode())
+        self.__connection.send(string_board)
 
     def get_move_coordinates(self) -> Tuple[int, int]:
-        # po wyswietleniu klientowi obecnego stanu rzeczy, pytamy go o wspolrzedne
         x = self.__send_move_request(MessageType.X_REQUEST, MessageType.X_RESPONSE)
         y = self.__send_move_request(MessageType.Y_REQUEST, MessageType.Y_RESPONSE)
         return x, y
@@ -87,7 +87,7 @@ class NetPlayer:
 
     @property
     def mark(self):
-        return self.__net_player.mark
+        return self.__mark
 
 
 class Server:
@@ -121,6 +121,8 @@ class Server:
 
 class Board:  # ta klasa nie zmienila sie za wiele
     def __init__(self, board_height: int, board_width: int):
+        self.__width = board_width
+        self.__height = board_height
         self.__board = [["-" for _ in range(board_width)] for _ in range(board_height)]
 
     def check_win(self) -> Union[str, bool]:
@@ -143,7 +145,7 @@ class Board:  # ta klasa nie zmienila sie za wiele
     def __check_single_win_vector(self, current_x: int, current_y: int, delta_x: int, delta_y: int) -> Union[str, bool]:
         row_string = ""
         while self.__are_coordinates_in_board_range(current_x, current_y):
-            row_string += self.__board[current_y][current_x]
+            row_string += self.__board[current_x][current_y]
             current_x += delta_x
             current_y += delta_y
         found_result = re.search(r"([^\-])\1\1", row_string)
@@ -160,7 +162,9 @@ class Board:  # ta klasa nie zmienila sie za wiele
         return True
 
     def __are_coordinates_in_board_range(self, x: int, y: int) -> bool:
-        return (x <= self.__width) and (y <= self.height)
+        if (x < self.__width) and (y < self.__height):
+            return True
+        return False
 
     def put_mark_if_possible(self, mark: str, x: int, y: int) -> bool:
         if self.__are_coordinates_in_board_range and (self.__board[x][y] == "-"):
@@ -185,6 +189,7 @@ class XOGame:
             self.__send_board_to_all(self.__board.show_board())
             x, y = player.get_move_coordinates()
             self.__board.put_mark_if_possible(player.mark, x, y)
+        return self.__board.check_win()
 
         # for actual_player in self.__connection_table:
         #     actual_player.send_board(self.__board.show_board())
@@ -211,19 +216,22 @@ class XOGame:
 
 if __name__ == '__main__':  # gra nie ruszy jeżeli nie jest mainem
     width = 5  # int(input("Podaj szerokosc"))
-    height = 4  # int(input("podaj wysokosc"))
+    height = 5  # int(input("podaj wysokosc"))
     board = Board(width, height)
     # player_list = [Player("X"), Player("O")]  # tutaj można dopisać nowych graczy
     server = Server()
     player_list = server.wait_for_players(1)
     # connection_table = [NetPlay(player) for player in player_list]
-    try:
-        game = XOGame(board, player_list)  # to do gry wchodza juz same one, a nie player_list
-        game.play_round()
-    except Exception:
-        server.close_socket()
-    finally:
-        server.close_socket()
+    #try:
+    game = XOGame(board, player_list)
+    while True:
+        result = game.play_round()
+        if result:
+            break
+    #except Exception:
+    #    server.close_socket()
+    #finally:
+    #    server.close_socket()
 
     #
     # while not game.is_board_full():

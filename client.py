@@ -45,7 +45,7 @@ def __send_move_request(self, request_type: MessageType, response_type: MessageT
 try:
     while 1:
         x = sock.recv(1024)
-        if x.decode():
+        if x:
             a = pickle.loads(x)
             if a[0] == MessageType.X_REQUEST:
                 move = int(input("podaj X"))
