@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Union
 
 host = "127.0.0.1"  # str(input("podaj adres IP serwera"))
-port = 1234
+port = 12345
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 flag = 0
@@ -42,21 +42,20 @@ def __send_move_request(self, request_type: MessageType, response_type: MessageT
 
 
 
-try:
-    while 1:
-        x = sock.recv(1024)
-        if x:
-            a = pickle.loads(x)
-            if a[0] == MessageType.X_REQUEST:
-                move = int(input("podaj X"))
-                sock.send(pickle.dumps((MessageType.X_RESPONSE, move)))
-            elif a[0] == MessageType.Y_REQUEST:
-                move = int(input("podaj Y"))
-                sock.send(pickle.dumps((MessageType.Y_RESPONSE, move)))
-            elif a[0] == MessageType.BOARD_SEND:
-                print(a[1])
-except KeyboardInterrupt:
-    sock.close()
+
+while 1:
+    x = sock.recv(1024)
+    if x:
+        a = pickle.loads(x)
+        if a[0] == MessageType.X_REQUEST:
+            move = int(input("podaj X"))
+            sock.send(pickle.dumps((MessageType.X_RESPONSE, move)))
+        elif a[0] == MessageType.Y_REQUEST:
+            move = int(input("podaj Y"))
+            sock.send(pickle.dumps((MessageType.Y_RESPONSE, move)))
+        elif a[0] == MessageType.BOARD_SEND:
+            print(a[1])
+
 # while True:
 #     # if flag == 0:
 #     #     flag = 1

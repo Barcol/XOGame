@@ -1,6 +1,7 @@
 import pickle
 import re
 import socket
+import time
 from enum import Enum
 from typing import Union, List, Any, Tuple
 possible_players = ["Y", "Z", "O", "X"]
@@ -64,6 +65,7 @@ class NetPlayer:
         response = (None, None)
 
         while response[0] != response_type:
+            time.sleep(0.2)
             self.__connection.send(pickle.dumps((request_type, None)))
             response = pickle.loads(self.__connection.recv(1024))
 
@@ -77,7 +79,7 @@ class NetPlayer:
 
 class Server:
     def __init__(self):
-        self.__socket = self.__create_socket("127.0.0.1", 1234)
+        self.__socket = self.__create_socket("127.0.0.1", 12345)
 
     def wait_for_players(self, number_of_players: int) -> List[NetPlayer]:
         return [NetPlayer(self.__socket.accept()[0]) for _ in range(number_of_players)]
