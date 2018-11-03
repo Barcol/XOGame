@@ -65,7 +65,7 @@ class NetPlayer:
         response = (None, None)
 
         while response[0] != response_type:
-            time.sleep(0.2)
+            print("Wysyłanie. Kod wiadomosci to {}".format(request_type))
             self.__connection.send(pickle.dumps((request_type, None)))
             response = pickle.loads(self.__connection.recv(1024))
 

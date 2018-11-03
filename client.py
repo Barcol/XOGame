@@ -44,6 +44,7 @@ def __send_move_request(self, request_type: MessageType, response_type: MessageT
 
 
 while 1:
+
     x = sock.recv(1024)
     if x:
         a = pickle.loads(x)
