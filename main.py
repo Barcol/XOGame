@@ -3,7 +3,7 @@ import re
 import socket
 import time
 from enum import Enum
-from typing import Union, List, Any, Tuple
+from typing import Union, List, Tuple
 possible_players = ["Y", "Z", "O", "X"]
 
 class MessageType(Enum):
@@ -149,14 +149,13 @@ class Board:  # ta klasa nie zmienila sie za wiele
         return True
 
     def __are_coordinates_in_board_range(self, x: int, y: int) -> bool:
-        if (x < self.__width) and (y < self.__height):
-            return True
-        return False
+        return (x < self.__width) and (y < self.__height)
 
     def put_mark_if_possible(self, mark: str, x: int, y: int) -> bool:
-        if self.__are_coordinates_in_board_range and (self.__board[x][y] == "-"):
-            self.__board[x][y] = mark
-            return True
+        if self.__are_coordinates_in_board_range(x,y):
+            if (self.__board[x][y] == "-"):
+                self.__board[x][y] = mark
+                return True
         return False
 
     def show_board(self) -> str:
