@@ -1,10 +1,10 @@
 import pickle
 import re
 import socket
-import time
 from enum import Enum
 from typing import Union, List, Tuple
 possible_players = ["Y", "Z", "O", "X"]
+
 
 class MessageType(Enum):
     BOARD_SEND = 0
@@ -14,38 +14,11 @@ class MessageType(Enum):
     Y_RESPONSE = 4
 
 
-# class Player:
-#     def __init__(self, mark: str):
-#         if len(mark) != 1:
-#             # raise PlayerMarkError("Symbol gracza musi mieć jeden znak!")
-#             pass
-#         self.__mark = mark
-#         self.__address = "127.0.0.1"  # str(input("Podaj adres IP gracza ".format(self.__mark)))
-#
-#     @property
-#     def address(self):  # po drugie chwali sie swoim adresem
-#         return self.__address
-#
-#     @property
-#     def mark(self):  # po trzecie chwali sie swoim znakiem
-#         return self.__mark
-
-
 class NetPlayer:
     def __init__(self, connection: socket):
-        # self.__port = 1234
-        # self.__net_player = net_player
-        # self.__sock = None
-        # self.__connection = None
+
         self.__mark = possible_players.pop(-1)
         self.__connection = connection
-
-    # def connect_to_player(self):
-    #     self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #     self.__sock.bind((self.__net_player.address, self.__port))
-    #     self.__sock.listen(1)
-    #     self.__connection, address = self.__sock.accept()
-    #     print("polaczylem sie! typek to{}".format(address))
 
     def send_board(self, string_board: str):
         self.__connection.send(string_board)
@@ -71,7 +44,6 @@ class NetPlayer:
 
         return response[1]
 
-
     @property
     def mark(self):
         return self.__mark
@@ -83,10 +55,6 @@ class Server:
 
     def wait_for_players(self, number_of_players: int) -> List[NetPlayer]:
         return [NetPlayer(self.__socket.accept()[0]) for _ in range(number_of_players)]
-
-        # self.__socket.sendall(board.encode())
-        # self.__connection_table.append(connection)
-        # print("jest! mamy gnoja! a imie jego: {}".format(address))
 
     def close_socket(self):
         self.__socket.close()
@@ -100,13 +68,7 @@ class Server:
         return sock
 
 
-# class MessagePacker:
-#     @staticmethod
-#     def pack_message(message_type: MessageType, data: Any) -> Tuple[int, str]:
-# return
-
-
-class Board:  # ta klasa nie zmienila sie za wiele
+class Board:
     def __init__(self, board_height: int, board_width: int):
         self.__width = board_width
         self.__height = board_height
@@ -152,8 +114,8 @@ class Board:  # ta klasa nie zmienila sie za wiele
         return (x < self.__width) and (y < self.__height)
 
     def put_mark_if_possible(self, mark: str, x: int, y: int) -> bool:
-        if self.__are_coordinates_in_board_range(x,y):
-            if (self.__board[x][y] == "-"):
+        if self.__are_coordinates_in_board_range(x, y):
+            if self.__board[x][y] == "-":
                 self.__board[x][y] = mark
                 return True
         return False
@@ -168,23 +130,13 @@ class XOGame:
         # TODO: zrobic zeby NetPlayer i np. jakis ComputerPLayer mialy interfejs (i stworzyc ComputerPLayer)
         self.__board = play_board
         self.__player_list = connection_table
-        # self.__server = server
 
-    def play_round(self):  # funkcja robi standardowy zestaw czynnosci potrzebny do rozgerania tury
+    def play_round(self):
         for player in self.__player_list:
             self.__send_board_to_all(self.__board.show_board())
             x, y = player.get_move_coordinates()
             self.__board.put_mark_if_possible(player.mark, x, y)
         return self.__board.check_win()
-
-        # for actual_player in self.__connection_table:
-        #     actual_player.send_board(self.__board.show_board())
-        #     x, y = actual_player.do_move()
-        #     print(x)
-        #     print(y)
-        #     self.__board.put_mark_if_possible(actual_player.mark, x, y)
-        #     actual_player.end_connection()
-        # return self.__board.check_win()
 
     def tell_who_won(self, mark: str):
         for actual_player in self.__player_list:
@@ -199,31 +151,15 @@ class XOGame:
             connection.send_board(pickle.dumps((MessageType.BOARD_SEND, string_board)))
 
 
-if __name__ == '__main__':  # gra nie ruszy jeżeli nie jest mainem
-    width = 5  # int(input("Podaj szerokosc"))
-    height = 5  # int(input("podaj wysokosc"))
+if __name__ == '__main__':
+    width = 5
+    height = 5
     board = Board(width, height)
-    # player_list = [Player("X"), Player("O")]  # tutaj można dopisać nowych graczy
     server = Server()
     player_list = server.wait_for_players(2)
-    # connection_table = [NetPlay(player) for player in player_list]
-    #try:
     game = XOGame(board, player_list)
     while True:
         result = game.play_round()
         if result:
             break
-    #except Exception:
-    #    server.close_socket()
-    #finally:
-    #    server.close_socket()
-
-    #
-    # while not game.is_board_full():
-    #     winning_symbol = game.play_round()
-    #     if winning_symbol:
-    #         game.tell_who_won(winning_symbol)  # jeżeli ktos wygra to obaj gracze dostana o tym infromacje
-    #         break
-    # if game.is_board_full():
-    #     game.tell_who_won("NIKT NIE")  # analogicznie jezeli nikt nie wygra
 print("Gra zakonczona.")
